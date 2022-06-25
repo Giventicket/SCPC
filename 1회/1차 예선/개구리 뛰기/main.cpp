@@ -4,10 +4,10 @@
 
 using namespace std;
 
-int main() {
+int main(){
 	//freopen("input.txt", "r", stdin);
 	ios_base::sync_with_stdio(false);
-    	cin.tie(NULL);  
+	cin.tie(NULL);  
 	cout.tie(NULL);
 	
 	vector<int> vt;
