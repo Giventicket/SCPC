@@ -11,4 +11,4 @@
 </p>
 
 다음에 jump를 할 곳을 찾아내기 위해서 이분탐색을 활용한 라이브러리 upper_bound를 생각해봤습니다. 
-upper_bound는 이분 탐색을 활용해서 주어진 input의 숫자보다 더 큰 value를 가진 최초의 iterator를 반환하기 때문에 이보다 한칸 더 작은 index를 활용해서 K에 의한 boundary 안에서 서칭할 수 있도록 했습니다.
+upper_bound는 이분 탐색을 활용해서 주어진 input의 숫자보다 더 큰 value를 가진 최초의 iterator를 반환하기 때문에 이보다 한칸 더 작은 index를 활용해서 K에 의한 boundary 안에서 서칭할 수 있도록 했습니다. worst case O(NlogN) 알고리즘입니다.
