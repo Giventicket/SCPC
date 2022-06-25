@@ -6,41 +6,11 @@
 
 using namespace std;
 
-vector<bool> pTable;
-
-vector<bool> make_pTable(){
-	int max = (int) sqrt(1000000000);
-	vector<bool> vt = vector<bool>(max+1, true);
-	vt[1] = false;
-	set<int> st;
-
-	for(int i = 2; i <= max; i++)
-		st.insert(i);
-
-	while(!st.empty()){
-		int prime = *(st.cbegin());
-		
-		for(auto it = st.cbegin(); it != st.cend(); ){
-			int mul = *(it);
-			if(prime * mul <= max){
-				vt[prime * mul] = false;
-				if(mul % prime == 0){
-					it++;
-					st.erase(mul);
-				} else
-					it++;
-			} else{
-				it++;
-				st.erase(mul);				
-			}
-		}
-	}
-	return vt;
-}
-
 set<int> getDiv(int N, bool containOne){
+	int max = (int) sqrt(N);
+	max++;
 	set<int> div;
-	for(int i=1; i < pTable.size(); i++){
+	for(int i=1; i <= max; i++){
 		if(i >= N)
 			break;
 		if(N % i == 0){
@@ -55,7 +25,7 @@ set<int> getDiv(int N, bool containOne){
 }
 
 int main(){
-	freopen("input.txt", "r", stdin);
+	//freopen("input.txt", "r", stdin);
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);  
 	cout.tie(NULL);
@@ -63,8 +33,6 @@ int main(){
 	int T, N;
 	cin >> T;	
 	
-	pTable = make_pTable();
-
 	for(int t = 1; t <= T; t++){
 		cout << "Case #" << t << "\n";
 		
