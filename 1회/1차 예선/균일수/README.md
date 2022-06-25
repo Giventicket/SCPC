@@ -10,4 +10,4 @@ a를 N의 약수로부터 얻을 수 있고 b 를 (N/a)-1의 약수로부터 얻
   <img src="https://user-images.githubusercontent.com/39179946/175776689-6cb61902-3f69-4a3b-8a67-805899fb880e.PNG"/>
 </p>
 
-위의 그림처럼 pseudocode를 구성해보았습니다. answer, div1, div2은 set 구조를 활용해서 중복하는 수들을 없애고 작은 수부터 차례로 정렬된 접근을 할 수 있도록 했습니다. 
+위의 그림처럼 pseudocode를 구성해보았습니다. answer, div1, div2은 set 구조를 활용해서 중복하는 수들을 없애고 작은 수부터 차례로 정렬된 접근을 할 수 있도록 했습니다. worst case O(N^0.5) 알고리즘입니다.
