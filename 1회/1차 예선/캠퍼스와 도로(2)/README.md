@@ -11,5 +11,7 @@ dijkstra를 한번 활용하는데 걸리는 시간은 O(ElogV)이며 이를 전
 </p>
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/39179946/176602590-1e28b959-c02b-4c1a-ae69-b39412e43c28.PNG"/>
+  <img src="https://user-images.githubusercontent.com/39179946/176606943-46410e8c-b99e-41d6-918f-82fb11c34609.PNG"/>
 </p>
+
+queue에서 pop된 element의 vertex는 source에서 그 vertex까지 shortest를 나타낸다. 이때, vertex의 shortest path count가 1일 경우 그 path는 유일하다. 따라서 parent를 answer set에 넣어주는 방식으로 계산하였다.
