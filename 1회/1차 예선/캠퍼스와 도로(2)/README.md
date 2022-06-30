@@ -1,22 +1,17 @@
-## 캠퍼스와 도로(1) insight sketch
+## 캠퍼스와 도로(2) insight sketch
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/39179946/175953434-efd69552-2937-4ab7-9a23-b53594c512c0.PNG"/>
+  <img src="https://user-images.githubusercontent.com/39179946/176602579-d4f1042b-b2ec-4f67-b954-a6f71a2c414c.PNG"/>
 </p>
 
-모든 vertex에 대해서 dijkstra algorithm을 활용해 intermediate vertex가 될 수 있는 vertex를 정답 배열에 넣습니다. 
-
-dijkstra algorithm을 진행할 떄, 주의할 점은 다음과 같습니다.
-<br/>
-(1) queue의 element는 어떤 path의 끝 vertex에서의 정보이다.
-<br/>
-(2) queue에서 pop한 element의 dist보다 dist array에 저장된 value가 더 작을 경우 이는 shortest path와 무관하므로 이때의 path뿐만아니라 이 path를 pass하는 경로 또한 고려할 필요가 없다. 즉, 그대로 pop해준다.
-<br/>
-(3) (2)의 검증을 통과한 element중 지나친 vertex가 3개 이상일 경우, 이 element의 parent value는 intermediate vertex가 될 수 있다.
-<br/>
-
-(1), (2), (3)을 고려해서 작성한 pseudo code는 아래와 같습니다.
+dijkstra를 한번 활용하는데 걸리는 시간은 O(ElogV)이며 이를 전체 vertex에 대해서 두번씩 활용하므로 O(VElogV)만큼의 수행시간이 소요된다. 따라서 주어진 시간안에 문제를 풀 수 있다는 분석을 했다. 아래에 psuedo code를 첨부했다. 각 vertex에 대해서 "특별 권한"을 사용하더라도 통과하는 차량이 존재할 수 밖에 없는 대학을 찾았다.
 
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/39179946/175955275-8c0b7a3f-b00c-41e3-999f-907c84240f81.PNG"/>
+  <img src="https://user-images.githubusercontent.com/39179946/176603102-610e6324-f9c1-43df-9d56-66ba38cbd972.PNG"/>
 </p>
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/39179946/176606943-46410e8c-b99e-41d6-918f-82fb11c34609.PNG"/>
+</p>
+
+queue에서 pop된 element의 vertex는 source에서 그 vertex까지 shortest를 나타낸다. 이때, vertex의 shortest path count가 1일 경우 그 path는 유일하다. 따라서 parent를 answer set에 넣어주는 방식으로 계산하였다.
