@@ -131,7 +131,8 @@ void initializeMapsAndValidSet(){
 void computeOneKcutting(int value, RMQ& rmq, int change){
 	auto up = validSet.upper_bound(value + m);
 	up--;
-	rmq.update(vToIdx[value], vToIdx[*up], change);
+	rmq.update(vToIdx[value], vTo
+	Idx[*up], change);
 	return;
 }
 
