@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cstring>
 #include <vector>
+#include <stack>
 
 using namespace std;
 
@@ -40,7 +41,7 @@ bool isCross(int i, int j, int ii, int jj) {
 		return isCross(jj, ii, i, j);
 		
 
-	if (!(V[i].first < V[ii].first && V[ii].first < V[j].first)){
+	if ((V[j].first < V[ii].first) || (V[jj].first < V[i].first)){
 		//cout << "isCross " << i << " " << j << " " << ii << " " << jj << " " << false << endl;
 		return false;
 	}
@@ -78,6 +79,14 @@ int dist(int i, int j, int d) {
 	return ret;
 }
 
+long double ccw(int i, int j, int k) {
+	long double x = V[j].first - V[i].first;
+	long double y = V[j].second - V[i].second;
+	long double xx = V[k].first - V[j].first;
+	long double yy = V[k].second - V[j].second;
+	return x * yy - y * xx;
+}
+
 void solve() {
 	// renew isIn, inner line cannot be cross
 	for (int i = 0; i < n; i++) {
@@ -96,6 +105,23 @@ void solve() {
 	
 	// renew isIn, consider if polygon is convex
 	// todo
+	stack<int> st;
+	st.push(0);
+	st.push(1);
+	int next = 2;
+	while (next != n) {
+		while (st.size() >= 2) {
+			int second = st.top();
+			st.pop();
+			int first = st.top();
+			if (ccw(first, second, next) > 0) {
+				st.push(second);
+				break;
+			} else
+				isIn[first][next] = isIn[next][first] = 0;
+		}
+		st.push(next++);
+	}
 
 	/*
 	for (int i = 0; i < n; i++)
