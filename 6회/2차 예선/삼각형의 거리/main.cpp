@@ -3,6 +3,7 @@
 #include <cstring>
 #include <vector>
 #include <stack>
+#include <cmath>
 
 using namespace std;
 
@@ -10,53 +11,62 @@ using namespace std;
 #define INF 1000000000
 
 int n;
-vector<pair<long double, long double>> V;
+vector<pair<double, double>> P; // points of polygon: (x, y)
 int dp[MAXN][MAXN];
 int isIn[MAXN][MAXN];
 
 void input() {
 	memset(isIn, 0, sizeof(isIn));
 	cin >> n;
-	V.clear();
-	V.resize(n);
+	P.clear();
+	P.resize(n);
 	for (int i = 0; i < n; i++)
-		cin >> V[i].first >> V[i].second;
+		cin >> P[i].first >> P[i].second;
 	return;
 }
 
-long double funcValue(int i, int j, long double x) {
-	return ((V[i].second - V[j].second) / (V[i].first - V[j].first)) * (x - V[i].first) + V[i].second;
+
+int ccw(
+	pair<double, double>& a, 	
+	pair<double, double>& b, 
+	pair<double, double>& c 
+) {
+	double x0 = b.first - a.first;
+	double y0 = b.second - a.second;
+	double x1 = c.first - b.first;
+	double y1 = c.second - b.second;
+	double val = x0 * y1 - y0 * x1;
+	if (val == 0)
+		return 0;
+	else if (val > 0)
+		return 1;
+	else
+		return -1;
 }
 
-long double funcDiffValue(int i, int j, int ii, int jj, long double x) {
-	return funcValue(i, j, x) - funcValue(ii, jj, x);
-}
-
-bool isCross(int i, int j, int ii, int jj) {
-	if (V[i].first > V[j].first)
-		return isCross(j, i, ii, jj);
-	if (V[ii].first > V[jj].first)
-		return isCross(i, j, jj, ii);
-	if (V[i].first > V[jj].first)
-		return isCross(jj, ii, i, j);
-		
-
-	if ((V[j].first < V[ii].first) || (V[jj].first < V[i].first)){
-		//cout << "isCross " << i << " " << j << " " << ii << " " << jj << " " << false << endl;
-		return false;
-	}
-		
+bool intersect(
+	pair<double, double>& a,
+	pair<double, double>& b,
+	pair<double, double>& c,
+	pair<double, double>& d	
+) {
+	if (a.first > b.first)
+		return intersect(b, a, c, d);
+	if (c.first > d.first)
+		return intersect(a, b, d, c);
+	if (a.first > c.first)
+		return intersect(c, d, a, b);
 	
-	long double minX = max(V[i].first, V[ii].first);
-	long double maxX = min(V[j].first, V[jj].first);
-	
-	if (funcDiffValue(i, j, ii, jj, minX) * funcDiffValue(i, j, ii, jj, maxX) < 0){
-		//cout << "isCross " << i << " " << j << " " << ii << " " << jj << " " << true << endl;
-		return true;
-	}
-		
-	//cout << "isCross " << i << " " << j << " " << ii << " " << jj << " " << false << endl;
-	return false;
+	int val0 = ccw(a, b, c) * ccw(a, b, d);
+	int val1 = ccw(c, d, a) * ccw(c, d, b);
+	if(!val0 && !val1)
+		return a.first <= d.first && c.first <= b.first;
+	else if (!val0)
+		return val1 < 0;
+	else if (!val1)
+		return val0 < 0;	
+	else 
+		return val0 < 0 && val1 < 0;	
 }
 
 int dist(int i, int j, int d) {
@@ -79,23 +89,15 @@ int dist(int i, int j, int d) {
 	return ret;
 }
 
-long double ccw(int i, int j, int k) {
-	long double x = V[j].first - V[i].first;
-	long double y = V[j].second - V[i].second;
-	long double xx = V[k].first - V[j].first;
-	long double yy = V[k].second - V[j].second;
-	return x * yy - y * xx;
-}
-
 void solve() {
+	/*
 	// renew isIn, inner line cannot be cross
 	for (int i = 0; i < n; i++) {
 		for (int j = i + 1; j < n; j++) {
 			isIn[i][j] = isIn[j][i] = 1;
 			for (int k = 0; k < n; k++) {
-				int ii = k;
-				int jj = (k + 1) % n;
-				if (isCross(i, j, ii, jj)) {
+				if (intersect(P[i], P[j], P[k], P[(k + 1) % n])) {
+					// cout << i << " " << j << " and " << ii << " " << jj << " intersect" << endl;
 					isIn[i][j] = isIn[j][i] = 0;
 					break;
 				}
@@ -103,32 +105,73 @@ void solve() {
 		}	
 	}
 	
-	// renew isIn, consider if polygon is convex
-	// todo
-	stack<int> st;
-	st.push(0);
-	st.push(1);
-	int next = 2;
-	while (next != n) {
-		while (st.size() >= 2) {
-			int second = st.top();
-			st.pop();
-			int first = st.top();
-			if (ccw(first, second, next) > 0) {
-				st.push(second);
-				break;
-			} else
-				isIn[first][next] = isIn[next][first] = 0;
+	for (int i = 0; i < n; i++) {
+		for (int j = i + 1; j < n; j++) {
+			if (abs(i - j) % n == 1 || abs(i - j) % n == n - 1) {
+				isIn[i][j] = isIn[j][i] = 1;
+				continue;
+			}
+			if (!isIn[i][j])
+				continue;
+			
+			pair<double, double> m = {(P[i].first + P[j].first) / 2 + 0.001, (P[i].second + P[j].second) / 2};
+			pair<double, double> e = {m.first, 1000001};
+			int cnt = 0;
+			for (int k = 0; k < n; k++) {
+				if(intersect(m, e, P[k], P[(k + 1) % n])) {
+			//		cout << k << " " << (k + 1) % n << " intersect" << endl;			
+					cnt++;
+				}
+			}		
+			//cout << i << " " << j << " " << m.first << " " << m.second << " has cnt " << cnt << endl;			
+			if (cnt % 2 == 0)
+				isIn[i][j] = isIn[j][i] = 0;	
 		}
-		st.push(next++);
 	}
+	*/
+	
+	for (int i = 0; i < n; i++)
+		isIn[i][(i + 1) % n] = isIn[(i + 1) % n][i] = 1;
 
+	for (int i = 0; i < n; i++) {
+		for (int j = i + 1; j < n; j++) {
+			if (abs(i - j) % n == 1 || abs(i - j) % n == n - 1)
+				continue;
+			
+			pair<double, double> m = {(P[i].first + P[j].first) / 2, (P[i].second + P[j].second) / 2};
+			pair<double, double> e = {m.first + 1, 1000001};
+			int cnt = 0;
+			bool intersected = false;
+			for (int k = 0; k < n; k++) {	
+				if(intersect(m, e, P[k], P[(k + 1) % n])) {
+			//		cout << k << " " << (k + 1) % n << " intersect" << endl;			
+					cnt++;
+				}
+				
+				if (i == k || i == (k + 1) % n || j == k || j == (k + 1) % n )
+					continue;
+				
+				if(intersect(P[i], P[j], P[k], P[(k + 1) % n])) {
+					intersected = true;
+					break;
+				}
+			}		
+			//cout << i << " " << j << " " << m.first << " " << m.second << " has cnt " << cnt << endl;			
+			if (intersected || cnt % 2 == 0)
+				isIn[i][j] = isIn[j][i] = 0;	
+			else
+				isIn[i][j] = isIn[j][i] = 1;	
+		}
+	}
+	
 	/*
 	for (int i = 0; i < n; i++)
 		for (int j = i + 1; j < n; j++)
 			cout << "isIn " << i << " " << j << " " << isIn[i][j] << endl;
 	*/
-			
+	
+	
+	
 	// solve
 	
 	int left = 0;
