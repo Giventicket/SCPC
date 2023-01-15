@@ -32,6 +32,7 @@ void input() {
 	left_up_ksum.clear();
 	right_down_ksum.clear();
 	vertical_long_sum.clear();
+	horizontal_long_sum.clear();
 	left_triangle_sum.clear();
 	right_triangle_sum.clear();
 	up_triangle_sum.clear();
