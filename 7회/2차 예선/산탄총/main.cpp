@@ -6,15 +6,17 @@ using namespace std;
 
 #define INF 360000000000001
 #define UNDEFINED 360000000000000
+#define SIZE0 1800
+#define SIZE1 3000
 
 typedef long long int ll;
 int N; 
 ll K;
-vector<vector<ll>> arr, 
-left_up_ksum, right_down_ksum, 
-vertical_long_sum, horizontal_long_sum, 
-left_triangle_sum, right_triangle_sum, up_triangle_sum, down_triangle_sum,
-santan_sum;
+ll arr[SIZE1][SIZE1], 
+left_up_ksum[SIZE1][SIZE1], right_down_ksum[SIZE1][SIZE1], 
+vertical_long_sum[SIZE0][SIZE0], horizontal_long_sum[SIZE0][SIZE0], 
+left_triangle_sum[SIZE0][SIZE0], right_triangle_sum[SIZE0][SIZE0], up_triangle_sum[SIZE0][SIZE0], down_triangle_sum[SIZE0][SIZE0],
+santan_sum[SIZE0][SIZE0];
 
 void update_left_up_ksum(int i, int j);
 void update_right_down_ksum(int i, int j);
@@ -24,64 +26,36 @@ void update_left_triangle_sum(int i, int j);
 void update_right_triangle_sum(int i, int j);
 void update_santan_sum(int i, int j);
 
+/*
+N + 2 * K - 2 < 1800
+N + 4 * K - 2 < 3000
+*/
+
 void input() {
 	//cout << "input" << endl;
 	cin >> N >> K;
 	
-	arr.clear();
-	left_up_ksum.clear();
-	right_down_ksum.clear();
-	vertical_long_sum.clear();
-	horizontal_long_sum.clear();
-	left_triangle_sum.clear();
-	right_triangle_sum.clear();
-	up_triangle_sum.clear();
-	down_triangle_sum.clear();
-	santan_sum.clear();
-	
-	arr.resize(N + 2 * K - 2);
-	for (int i = 0; i < N + 2 * K - 2; i++)
-		arr[i].resize(N + 2 * K - 2);
-	
-	left_up_ksum.resize(N + 2 * K - 2);
-	for (int i = 0; i < N + 2 * K - 2; i++)
-		left_up_ksum[i] = vector<ll>(N + 2 * K - 2, UNDEFINED);
+	for (int i = 0; i < N + 4 * K - 2; i++) 
+		for (int j = 0; j < N + 4 * K - 2; j++) {
+			arr[i][j] = 0;
+			left_up_ksum[i][j] = UNDEFINED;
+			right_down_ksum[i][j] = UNDEFINED;
+		}
 
-	right_down_ksum.resize(N + 2 * K - 2);
-	for (int i = 0; i < N + 2 * K - 2; i++)
-		right_down_ksum[i] = vector<ll>(N + 2 * K - 2, UNDEFINED);
+	for (int i = 0; i < N + 2 * K; i++)
+		for (int j = 0; j < N + 2 * K; j++) {
+			vertical_long_sum[i][j] = UNDEFINED;
+			horizontal_long_sum[i][j] = UNDEFINED;
+			left_triangle_sum[i][j] = UNDEFINED;
+			right_triangle_sum[i][j] = UNDEFINED;
+			up_triangle_sum[i][j] = UNDEFINED;
+			down_triangle_sum[i][j] = UNDEFINED;
+			santan_sum[i][j] = UNDEFINED;
+		}
 
-	vertical_long_sum.resize(N);
-	for (int i = 0; i < N; i++)
-		vertical_long_sum[i] = vector<ll>(N, UNDEFINED);
-	
-	horizontal_long_sum.resize(N);
-	for (int i = 0; i < N; i++)
-		horizontal_long_sum[i] = vector<ll>(N, UNDEFINED);
-	
-	left_triangle_sum.resize(N);
-	for (int i = 0; i < N; i++)
-		left_triangle_sum[i] = vector<ll>(N, UNDEFINED);
-	
-	right_triangle_sum.resize(N);
-	for (int i = 0; i < N; i++)
-		right_triangle_sum[i] = vector<ll>(N, UNDEFINED);
-
-	up_triangle_sum.resize(N);
-	for (int i = 0; i < N; i++)
-		up_triangle_sum[i] = vector<ll>(N, UNDEFINED);
-	
-	down_triangle_sum.resize(N);
-	for (int i = 0; i < N; i++)
-		down_triangle_sum[i] = vector<ll>(N, UNDEFINED);
-	
-	santan_sum.resize(N);
-	for (int i = 0; i < N; i++)
-		santan_sum[i] = vector<ll>(N, UNDEFINED);
-	
 	for (int i = 0; i < N; i++)
 		for (int j = 0; j < N; j++)
-			cin >> arr[i + K - 1][j + K - 1]; 
+			cin >> arr[i + 2 * K - 1][j + 2 * K - 1]; 
 	
 	return;
 }
@@ -91,10 +65,10 @@ void update_left_up_ksum(int i, int j) {
 	if (left_up_ksum[i][j] != UNDEFINED)
 		return;
 		
-	else if (i - K + 1 < 0 || j + K - 1 >= N + 2 * K - 2) {
+	else if (i - K + 1 < 0 || j + K - 1 >= N + 4 * K - 2) {
 		left_up_ksum[i][j] = INF;
 		return;
-	} else if (i + 1 >= N + 2 * K - 2 || j - 1 < 0) {
+	} else if (i + 1 >= N + 4 * K - 2 || j - 1 < 0) {
 		left_up_ksum[i][j] = 0;
 		for (ll k = 0; k < K; k++)
 			left_up_ksum[i][j] += arr[i - k][j + k];
@@ -110,7 +84,7 @@ void update_right_down_ksum(int i, int j) {
 	//cout << "update_right_down_ksum" << endl;
 	if (right_down_ksum[i][j] != UNDEFINED)
 		return;
-	else if (i + K - 1 >= N + 2 * K - 2 || j + K - 1 >= N + 2 * K - 2) {
+	else if (i + K - 1 >= N + 4 * K - 2 || j + K - 1 >= N + 4 * K - 2) {
 		right_down_ksum[i][j] = INF;
 		return;
 	} else if (i - 1 < 0 || j - 1 < 0) {
@@ -182,6 +156,7 @@ void update_left_triangle_sum(int i, int j) {
 
 	if (i == 0 && j == 0) {
 		left_triangle_sum[i][j] = 0;
+		/*
 		for (ll k = 0; k < K; k++) {
 			for (int l = 0; l <= k; l++) {
 				left_triangle_sum[i][j] += arr[ii + l][jj - k + l];
@@ -189,6 +164,7 @@ void update_left_triangle_sum(int i, int j) {
 			}
 			left_triangle_sum[i][j] -= arr[ii][jj - k];	
 		}
+		*/
 		return;
 	} else if (j != 0) {
 		update_left_triangle_sum(i, j - 1);
@@ -219,6 +195,7 @@ void update_right_triangle_sum(int i, int j) {
 
 	if (i == 0 && j == 0) {
 		right_triangle_sum[i][j] = 0;
+		/*
 		for (ll k = 0; k < K; k++) {
 			for (int l = 0; l <= k; l++) {
 				right_triangle_sum[i][j] += arr[ii + l][jj + k - l];
@@ -226,6 +203,7 @@ void update_right_triangle_sum(int i, int j) {
 			}
 			right_triangle_sum[i][j] -= arr[ii][jj + k];
 		}
+		*/
 		return;
 	} else if (j != 0) {
 		update_right_triangle_sum(i, j - 1);
@@ -255,6 +233,7 @@ void update_up_triangle_sum(int i, int j) {
 
 	if (i == 0 && j == 0) {
 		up_triangle_sum[i][j] = 0;
+		/*
 		for (ll k = 0; k < K; k++) {
 			for (int l = 0; l <= k; l++) {
 				up_triangle_sum[i][j] += arr[ii - k + l][jj + l];
@@ -262,6 +241,7 @@ void update_up_triangle_sum(int i, int j) {
 			}
 			up_triangle_sum[i][j] -= arr[ii - k][jj];
 		}
+		*/
 		return;
 	} else if (j != 0) {
 		update_up_triangle_sum(i, j - 1);
@@ -291,6 +271,7 @@ void update_down_triangle_sum(int i, int j) {
 
 	if (i == 0 && j == 0) {
 		down_triangle_sum[i][j] = 0;
+		/*
 		for (ll k = 0; k < K; k++) {
 			for (int l = 0; l <= k; l++) {
 				down_triangle_sum[i][j] += arr[ii + k - l][jj + l];
@@ -298,6 +279,7 @@ void update_down_triangle_sum(int i, int j) {
 			}
 			down_triangle_sum[i][j] -= arr[ii + k][jj];
 		}
+		*/
 		return;
 	} else if (j != 0) {
 		update_down_triangle_sum(i, j - 1);
@@ -325,6 +307,7 @@ void update_santan_sum(int i, int j) {
 	
 	if (i == 0 && j == 0) {
 		santan_sum[i][j] = K * arr[ii][jj];
+		/*
 		for (ll k = 0; k < K; k++) {
 			for (int l = 0; l <= k; l++) {
 				santan_sum[i][j] += (K - k) * arr[ii + l][jj + k - l];
@@ -337,6 +320,7 @@ void update_santan_sum(int i, int j) {
 			santan_sum[i][j] -= (K - k) * arr[ii][jj - k];
 			santan_sum[i][j] -= (K - k) * arr[ii - k][jj];
 		}
+		*/
 		return;
 	} else if (j != 0) {
 		update_santan_sum(i, j - 1);
@@ -355,7 +339,7 @@ void update_santan_sum(int i, int j) {
 
 void solve() {
 	//cout << "solve" << endl;
-	
+	/*
 	for (int i = 0; i < N + 2 * K - 2; i++) {
 			for (int j = 0; j < N + 2 * K - 2; j++) {
 				update_left_up_ksum(i, j);
@@ -388,10 +372,11 @@ void solve() {
 			//cout << "up_triangle_sum " << i << " " << j << " " << up_triangle_sum[i][j] << endl;
 			//cout << "down_triangle_sum " << i << " " << j << " " << down_triangle_sum[i][j] << endl;
 		}
+	*/
 	
 	ll ans = 0;
-	for (int i = 0; i < N; i++)
-		for (int j = 0; j < N; j++) {
+	for (int i = 0; i < N + 2 * K; i++)
+		for (int j = 0; j < N + 2 * K; j++) {
 			update_santan_sum(i, j);
 			//cout << "santan " << i << " " << j << " " << santan_sum[i][j] << endl;
 			ans = max(ans, santan_sum[i][j]);
