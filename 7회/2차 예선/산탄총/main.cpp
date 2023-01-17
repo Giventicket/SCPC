@@ -332,7 +332,7 @@ void update_santan_sum(int i, int j) {
 		update_santan_sum(i - 1, j);
 		update_up_triangle_sum(i - 1, j);
 		update_down_triangle_sum(i, j);
-		santan_sum[i][j] = santan_sum[i][j - 1] - up_triangle_sum[i][j - 1] + down_triangle_sum[i][j];
+		santan_sum[i][j] = santan_sum[i - 1][j] - up_triangle_sum[i - 1][j] + down_triangle_sum[i][j];
 		return;	
 	}
 }
@@ -387,7 +387,7 @@ void solve() {
 }
 
 int main(){
-	freopen("input.txt", "r", stdin);
+//	freopen("input.txt", "r", stdin);
 	ios_base::sync_with_stdio(false);
 	cin.tie(NULL);  
 	cout.tie(NULL);
