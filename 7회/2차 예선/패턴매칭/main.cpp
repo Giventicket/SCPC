@@ -108,6 +108,7 @@ void solve() {
 	ll ans = 0;
 	for(ll i = 1; i <= K; i++) {
 		renew_prev_P(Ps[i - 1]);
+		cout << i << " " << kmp(Ps[i - 1]) << endl;
 		ans += i * kmp(Ps[i - 1]);
 	}
 	cout << ans << "\n";
