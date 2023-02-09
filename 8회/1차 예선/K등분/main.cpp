@@ -1,33 +1,32 @@
 #include <iostream>
 #include <vector>
-#include <map>
+#include <cstring>
 #include <algorithm>
 
 using namespace std;
+
+#define MAXN 500001
+#define MOD 1000000007
 
 typedef long long ll;
 
 ll N;
 ll K;
 ll C;
-vector<ll> V;
-vector<ll> pSum;
-vector<vector<ll>> group;
-map<pair<ll, ll>, ll> cache;
+ll S;
+ll V[MAXN];
+ll pSum[MAXN];
+ll cache[MAXN];
+ll fac[MAXN];
+ll ifac[MAXN];
 
 void input() {
-	// cout << "input" << endl;
-	cache.clear();
+	// cout << "input" << endl;	
+	memset(V, 0, sizeof(V));
+	memset(pSum, 0, sizeof(pSum));
+	memset(cache, 0, sizeof(cache));
 	cin >> N >> K;
 	C = 0;
-	V.clear();
-	pSum.clear();
-	group.clear();
-	
-	V.resize(N);
-	pSum.resize(N);
-	group.resize(N + 1);
-	
 	ll sum = 0;
 	for (ll i = 0; i < N; i++) {
 		cin >> V[i];
@@ -40,57 +39,58 @@ void input() {
 		return;
 	}
 	
-	sum = pSum[N - 1] / K;
+	S = pSum[N - 1] / K;
 	
-	for (ll i = 0; i < N; i++) {
+	for (ll i = 0; i < N; i++) {		
 		if (sum == 0) {
 			if (pSum[i] == 0) {
 				C++;
 			}
-		} else if (pSum[i] % sum == 0)
-			group[pSum[i] / sum].push_back(i);
+		}
 	}
-		
+	
 	return;
 }
 
-ll dp(ll g_idx, ll idx) {
-	// cout << "dp" << endl;	
-	if (g_idx == K)
-		return idx == N - 1;
-	if (cache.find({g_idx, idx}) != cache.end())
-		return cache[{g_idx, idx}];
-	cache[{g_idx, idx}] = 0;
-	ll& ret = cache[{g_idx, idx}];
-	for (ll n_idx: group[g_idx + 1])
-		if (idx < n_idx) {
-			ret += dp(g_idx + 1, n_idx);
-			ret = ret % 1000000007;
-		}
-	return ret = ret % 1000000007;
+void pre_calc() {
+	fac[0] = 1;
+	for (ll i = 1; i < MAXN; i++) {
+		fac[i] = i * fac[i - 1]; 
+		fac[i] %= MOD;
+	}
+	
+	for (ll i = 0; i < MAXN; i++) {
+		ll r = 1;
+		ll x = fac[i];
+		for (ll k = MOD - 2; k; k /= 2, x = x * x % MOD)
+			if (k & 1){
+				r *= x;
+				r %= MOD;
+			}
+		ifac[i] = r;
+	}
+	return;
 }
 
 ll calc(ll n, ll k) {
 	// cout << "calc" << endl;
-	if (k == 0 || n == k)
-		return 1;
-	if (cache.find({n, k}) != cache.end())
-		return cache[{n, k}];
-	cache[{n, k}] = 0;
-	ll& ret = cache[{n, k}];
-	ret = calc(n - 1, k) + calc(n - 1, k - 1);
-	return ret = ret % 1000000007;
+	ll ret = fac[n] * ifac[k] % MOD;
+	ret = ret * ifac[n - k] % MOD;
+	return  ret;
 }
 
 void solve() {
 	// cout << "solve" << endl;
 	if (C == 0) {
-		ll ans = 0;
-		for(ll idx: group[1]) {
-		    ans += dp(1, idx);
-			ans %= 1000000007;
+		cache[0] = 1;
+		for(ll idx = 0; idx < N; idx++) {
+			ll g_idx = pSum[idx] / S;
+			if (pSum[idx] % S == 0 && g_idx >= 1 && g_idx <= K) {
+				cache[g_idx] += cache[g_idx - 1];					
+				cache[g_idx] %= MOD;
+			}
 		}
-		cout << ans << "\n";
+		cout << cache[K - 1] << "\n";
 	} else if (C == -1) 
 		cout << 0 << "\n";
 	else {
@@ -107,6 +107,8 @@ int main(){
 	
 	ll T;
 	cin >> T;
+	
+	pre_calc();
 	
 	for(ll t = 1; t <= T; t++){
 		cout << "Case #" << t << "\n";
