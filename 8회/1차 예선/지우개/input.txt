@@ -1,8 +1,9 @@
-2
+3
 7 4
 abaabba
 aaba
 9 5
 aabbababb
 bbaab
-
+8 2
+aabbaabb bb
