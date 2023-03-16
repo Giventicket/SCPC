@@ -91,32 +91,27 @@ struct RMQ{
 };
 
 int N;
-vector<int> groups;
-vector<vector<int>> groups_to_idx;
-vector<pair<int, int>> st_and_e;
+int groups[300000];
+vector<int> groups_to_idx[300001];
+pair<int, int> st_and_e[300001];
 
 void input() {	
 	// cout << "input" << endl;
 	
 	cin >> N;
-	groups.clear();
-	groups.resize(N);
-	set<int> st;
 	for (int i = 0; i < N; i++) {
 		cin >> groups[i];
-		st.insert(groups[i]);
 	}
 	
-	groups_to_idx.clear();
-	groups_to_idx.resize(st.size() + 1);
-	st_and_e.clear();
-	st_and_e.resize(st.size() + 1);
+	for (int i = 1; i <= N; i++) {
+		groups_to_idx[i].clear();
+	}
 	
 	for (int i = 0; i < N; i++) {
 		groups_to_idx[groups[i]].push_back(i);
 	}
 	
-	for (int i = 1; i < st_and_e.size(); i++) {
+	for (int i = 1; i <= N; i++) {
 		st_and_e[i] = make_pair(0, groups_to_idx[i].size() - 1);
 	}
 	return;
@@ -125,12 +120,12 @@ void input() {
 
 void solve() {
 	vector<int> indices;
-	indices.resize(groups.size());
-	for (int i = 0; i < groups.size(); i++)
+	indices.resize(N);
+	for (int i = 0; i < N; i++)
 		indices[i] = i;
 	RMQ rmq(indices);
 	int here = 0;
-	int answer = 0;
+	long long int answer = 0;
 	while (here < N) {
 		int group = groups[here];
 		if (st_and_e[group].first >= st_and_e[group].second) {
