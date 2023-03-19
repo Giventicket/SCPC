@@ -16,6 +16,7 @@ int max_table[9][256][9][256]; // (jr, ir, jc, ic)
 
 void input() {
 	// cout << "input" << endl;
+	
 	cin >> N;
 	matrix.resize(N);
 	memset(min_table, 0, sizeof(min_table));
@@ -29,6 +30,8 @@ void input() {
 }
 
 void precomute () {
+	// cout << "precomute" << endl;
+	
 	for (int ir = 0; ir < N; ir++) {
 		for (int ic = 0; ic < N; ic++) {
 			min_table[0][ir][0][ic] = matrix[ir][ic];
@@ -38,17 +41,17 @@ void precomute () {
 		for (int jc = 1; jc <= (int) log2(N); jc++) {
 			for (int ic = 0; ic < N; ic++) {
 				min_table[0][ir][jc][ic] = min(min_table[0][ir][jc - 1][ic], min_table[0][ir][jc - 1][ic + (int) pow(2, jc - 1)]);
-				max_table[0][ir][jc][ic] = min(max_table[0][ir][jc - 1][ic], max_table[0][ir][jc - 1][ic + (int) pow(2, jc - 1)]);
+				max_table[0][ir][jc][ic] = max(max_table[0][ir][jc - 1][ic], max_table[0][ir][jc - 1][ic + (int) pow(2, jc - 1)]);
 			}
 		}
 	}
 	
 	for (int jr = 1; jr <= (int) log2(N); jr++) {
 		for (int ir = 0; ir < N; ir++) {
-			for (int jc = 1; jc <= (int) log2(N); jc++) {
+			for (int jc = 0; jc <= (int) log2(N); jc++) {
 				for (int ic = 0; ic < N; ic++) {
 					min_table[jr][ir][jc][ic] = min(min_table[jr - 1][ir][jc][ic], min_table[jr - 1][ir + (int) pow(2, jr - 1)][jc][ic]);
-					max_table[jr][ir][jc][ic] = min(max_table[jr - 1][ir][jc][ic], max_table[jr - 1][ir + (int) pow(2, jr - 1)][jc][ic]);
+					max_table[jr][ir][jc][ic] = max(max_table[jr - 1][ir][jc][ic], max_table[jr - 1][ir + (int) pow(2, jr - 1)][jc][ic]);
 				}
 			}
 		}
@@ -58,6 +61,7 @@ void precomute () {
 }
 
 int min_query (int x1, int y1, int x2, int y2) {
+	// cout << "min_query " << x1 << " " << y1 << " " << x2 << " " << y2 << endl;
 	int kx = log2(x2 - x1 + 1);
 	int ky = log2(y2 - y1 + 1);
 	int min1 = min(min_table[kx][x1][ky][y1], min_table[kx][x1][ky][y2 - (int) pow(2, ky) + 1]);
@@ -66,6 +70,7 @@ int min_query (int x1, int y1, int x2, int y2) {
 }
 
 int max_query (int x1, int y1, int x2, int y2) {
+	// cout << "max_query " << x1 << " " << y1 << " " << x2 << " " << y2 << endl;
 	int kx = log2(x2 - x1 + 1);
 	int ky = log2(y2 - y1 + 1);
 	int max1 = max(max_table[kx][x1][ky][y1], max_table[kx][x1][ky][y2 - (int) pow(2, ky) + 1]);
@@ -77,8 +82,9 @@ int dx[4] = {-1, 0, 1, 0};
 int dy[4] = {0, -1, 0, 1};
 
 void solve() {
-	cout << "solve" << endl;
-	int answer = 0;
+	// cout << "solve" << endl;
+	precomute();
+	int answer = N * N;
 			
 	for (int r = 0; r < N; r++) {
 		for (int c = 0; c < N; c++) {
@@ -87,48 +93,85 @@ void solve() {
 			int ii = r;
 			int jj = c;
 			
+			// cout <<  "matrix[r][c] " << " " << r << " " << c << " " << matrix[r][c] << endl;
+			
 			while (true) {
+				// cout << i << " " << j << " " << ii << " " << jj << endl;
 				vector<tuple<int, pair<int, int>, pair<int, int>>> candidates;
+				int M = N * N + 1;
+				int i_candi = -1;
+				int j_candi = -1;
+				int ii_candi = -1;
+				int jj_candi = -1;
 				
-				for (int x = 0; x < 2; x++) {
-					for (int y = 0; y < 2; y++) {
-						int next_i = i + dx[x];
-						int next_j = j + dx[y];
-						
-						if (next_i < 0 || next_i >= N || next_j < 0 || next_j >= N)
-							continue;	
-						if (min_query(next_i, next_j, ii, jj) != matrix[r][c])
-							continue;
-						
-						candidates.emplace_back(max_query(next_i, next_j, ii, jj), make_pair(next_i, next_j), make_pair(ii, jj));
+				for (int idx = 0; idx < 2; idx++) {
+					int next_i = i + dx[idx];
+					int next_j = j + dy[idx];
+					
+					// cout << "for loop " << next_i << " " << next_j << " " << ii << " " << jj << endl;
+					
+					if (next_i < 0 || next_i >= N || next_j < 0 || next_j >= N)
+						continue;	
+					
+					// cout << "min_query " << min_query(next_i, next_j, ii, jj)  << " " <<  matrix[r][c] << endl;
+					
+					if (min_query(next_i, next_j, ii, jj) != matrix[r][c])
+						continue;
+					
+					if (M > max_query(next_i, next_j, ii, jj)) {
+						M = max_query(next_i, next_j, ii, jj);
+						i_candi = next_i;
+						j_candi = next_j;
+						ii_candi = ii;
+						jj_candi = jj;
 					}
 				}	
 
-				for (int x = 2; x < 4; x++) {
-					for (int y = 2; y < 4; y++) {
-						int next_ii = ii + dx[x];
-						int next_jj = jj + dx[y];
-						
-						if (next_ii < 0 || next_ii >= N || next_jj < 0 || next_jj >= N)
-							continue;	
-						if (min_query(i, j, next_ii, next_jj) != matrix[r][c])
-							continue;
-						
-						candidates.emplace_back(max_query(i, j, next_ii, next_jj), make_pair(i, j), make_pair(next_ii, next_jj));
+				for (int idx = 2; idx < 4; idx++) {
+					int next_ii = ii + dx[idx];
+					int next_jj = jj + dy[idx];
+					
+					// cout << "for loop " << i << " " << j << " " << next_ii << " " << next_jj << endl;
+					
+					if (next_ii < 0 || next_ii >= N || next_jj < 0 || next_jj >= N)
+						continue;	
+					
+					// cout << "min_query " << min_query(i, j, next_ii, next_jj)  << " " <<  matrix[r][c] << endl;
+					
+					if (min_query(i, j, next_ii, next_jj) != matrix[r][c])
+						continue;
+					
+					if (M > max_query(i, j, next_ii, next_jj)) {
+						M = max_query(i, j, next_ii, next_jj);
+						i_candi = i;
+						j_candi = j;
+						ii_candi = next_ii;
+						jj_candi = next_jj;
 					}
 				}	
-
-				sort(candidates.begin(), candidates.end());
-				int M = get<0>(candidates[0]);
-				auto [i, j] = get<1>(candidates[0]);
-				auto [ii, jj] = get<2>(candidates[0]);
 				
+				if (M == N * N + 1) {
+					// cout << "break" << endl;
+					break;
+				}
+				
+				i = i_candi;
+				j = j_candi;
+				ii = ii_candi;
+				jj = jj_candi;
+
 				int sz = (ii - i + 1) * (jj - j + 1);
-				if (sz == M - matrix[r][c] + 1)
+				// cout << "sz, M-matrix[r][c]+1 M " << sz << " " << M - matrix[r][c] + 1 << " " << M << endl;
+				// cout << "i j ii jj " << i << " " <<  j << " " << ii << " " << jj << endl;
+				if (sz == M - matrix[r][c] + 1) {
+					// cout << i << " " << j << " " << ii << " " << jj << endl;
 					answer++;
+				}
 			}
 		}
 	}
+	
+	cout << answer << "\n";
 
 	return;
 }
