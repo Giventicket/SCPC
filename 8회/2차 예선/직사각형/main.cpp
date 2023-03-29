@@ -4,25 +4,36 @@
 #include <tuple>
 #include <vector>
 #include <algorithm>
+#include <unordered_map>
+
 
 using namespace std;
 
 typedef long long ll;
 
 int N;
-vector<vector<int>> matrix;
+int matrix[256][256];
 int min_table[9][256][9][256]; // (jr, ir, jc, ic)
 int max_table[9][256][9][256]; // (jr, ir, jc, ic)
 
+int pow_result[] = {1, 2, 4, 8, 16, 32, 64, 128, 256};
+int pow(int x, int y) {
+	return pow_result[y];
+}
+
+int log2(int x)
+{
+	long long y = x;
+    return 64 - __builtin_clzl(y) - 1;
+}
+
+
 void input() {
 	// cout << "input" << endl;
-	
 	cin >> N;
-	matrix.resize(N);
+	memset(matrix, 0, sizeof(matrix));
 	memset(min_table, 0, sizeof(min_table));
 	memset(max_table, 0, sizeof(max_table));
-	for (int i = 0; i < N; i++)
-		matrix[i].resize(N);
 	for (int i = 0; i < N; i++)
 		for (int j = 0; j < N; j++)
 		cin >> matrix[i][j];
@@ -84,6 +95,7 @@ int dy[4] = {0, -1, 0, 1};
 void solve() {
 	// cout << "solve" << endl;
 	precomute();
+	
 	int answer = N * N;
 			
 	for (int r = 0; r < N; r++) {
@@ -94,10 +106,9 @@ void solve() {
 			int jj = c;
 			
 			// cout <<  "matrix[r][c] " << " " << r << " " << c << " " << matrix[r][c] << endl;
-			
+			vector<bool> blocked(4);
 			while (true) {
 				// cout << i << " " << j << " " << ii << " " << jj << endl;
-				vector<tuple<int, pair<int, int>, pair<int, int>>> candidates;
 				int M = N * N + 1;
 				int i_candi = -1;
 				int j_candi = -1;
@@ -105,6 +116,8 @@ void solve() {
 				int jj_candi = -1;
 				
 				for (int idx = 0; idx < 2; idx++) {
+					if (blocked[idx])
+						continue;
 					int next_i = i + dx[idx];
 					int next_j = j + dy[idx];
 					
@@ -115,11 +128,15 @@ void solve() {
 					
 					// cout << "min_query " << min_query(next_i, next_j, ii, jj)  << " " <<  matrix[r][c] << endl;
 					
-					if (min_query(next_i, next_j, ii, jj) != matrix[r][c])
+					if (min_query(next_i, next_j, ii, jj) != matrix[r][c]) {
+						blocked[idx] = true;
 						continue;
+					}
 					
-					if (M > max_query(next_i, next_j, ii, jj)) {
-						M = max_query(next_i, next_j, ii, jj);
+					int m = max_query(next_i, next_j, ii, jj);
+					
+					if (M > m) {
+						M = m;
 						i_candi = next_i;
 						j_candi = next_j;
 						ii_candi = ii;
@@ -128,6 +145,8 @@ void solve() {
 				}	
 
 				for (int idx = 2; idx < 4; idx++) {
+					if (blocked[idx])
+						continue;
 					int next_ii = ii + dx[idx];
 					int next_jj = jj + dy[idx];
 					
@@ -138,11 +157,14 @@ void solve() {
 					
 					// cout << "min_query " << min_query(i, j, next_ii, next_jj)  << " " <<  matrix[r][c] << endl;
 					
-					if (min_query(i, j, next_ii, next_jj) != matrix[r][c])
+					if (min_query(i, j, next_ii, next_jj) != matrix[r][c]) {
+						blocked[idx] = true;
 						continue;
+					}
 					
-					if (M > max_query(i, j, next_ii, next_jj)) {
-						M = max_query(i, j, next_ii, next_jj);
+					int m = max_query(i, j, next_ii, next_jj);
+					if (M > m) {
+						M = m;
 						i_candi = i;
 						j_candi = j;
 						ii_candi = next_ii;
